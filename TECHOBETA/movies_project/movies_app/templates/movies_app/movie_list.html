@@ -1,0 +1,23 @@
+<!-- movies_app/templates/movies_app/movie_list.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список фильмов</title>
+    <!-- Подключим статику -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>Список фильмов</h1>
+    <ul>
+        {% for movie in movies %}
+            <li>
+                <a href="{% url 'movie_detail' movie.id %}">
+                    {{ movie.title }} ({{ movie.year }})
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

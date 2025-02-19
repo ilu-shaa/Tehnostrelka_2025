@@ -1,0 +1,27 @@
+<!-- movies_app/templates/movies_app/movie_detail.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ movie.title }}</title>
+    {% load static %}
+</head>
+<body>
+    <h1>{{ movie.title }} ({{ movie.year }})</h1>
+
+    <!-- Обложка (постер) -->
+    <!-- Предположим, что картинки лежат в /static/posters/ -->
+    <div>
+        <img src="{% static 'posters/' %}{{ movie.poster }}" alt="{{ movie.title }}" style="width: 200px;">
+    </div>
+
+    <p><strong>Жанры:</strong> {{ movie.user_tags }}</p>
+    <p><strong>Автор/Режиссёр:</strong> {{ movie.author }}</p>
+    <p><strong>Описание:</strong> {{ movie.plot }}</p>
+
+    <!-- Пример вывода reviews как есть (JSON-строка) -->
+    <p><strong>Reviews (JSON-данные):</strong> {{ movie.reviews }}</p>
+
+    <a href="{% url 'movie_list' %}">Вернуться к списку фильмов</a>
+</body>
+</html>
