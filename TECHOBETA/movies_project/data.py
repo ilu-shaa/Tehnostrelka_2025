@@ -1,6 +1,12 @@
+import os
 import csv
-from movies_app.models import Movie
+import django
 
+# Настройка Django-окружения
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'movies_project.settings')
+django.setup()
+
+from movies_app.models import Movie
 csv_file_path = "movies.csv"
 
 with open(csv_file_path, newline='', encoding='utf-8') as csvfile:

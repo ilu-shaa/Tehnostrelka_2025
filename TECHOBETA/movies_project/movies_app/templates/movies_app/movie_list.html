@@ -1,23 +1,60 @@
-<!-- movies_app/templates/movies_app/movie_list.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Список фильмов</title>
-    <!-- Подключим статику -->
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="icon" href="{% static 'cut.png' %}">
 </head>
 <body>
     <h1>Список фильмов</h1>
-    <ul>
-        {% for movie in movies %}
-            <li>
-                <a href="{% url 'movie_detail' movie.id %}">
-                    {{ movie.title }} ({{ movie.year }})
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
+
+    <!-- Кнопка "Личный кабинет" -->
+    <div class="profile-button-container">
+        <a href="{% url 'profile' %}" class="profile-button">Личный кабинет</a>
+    </div>
+    <div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="profile-button">Личный кабинет</a> <a href="{% url 'logout' %}">Выйти</a></p>
+        {% else %}
+            <p><a href="{% url 'login' %}">Войти</a> | <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Навигация по жанрам -->
+    <nav class="genre-tabs">
+        <ul>
+            <li><a href="{% url 'movie_list' %}">Все фильмы</a></li>
+            {% for genre in genres %}
+                <li><a href="{% url 'genre_movies' genre %}">{{ genre }}</a></li>
+            {% endfor %}
+        </ul>
+    </nav>
+
+    <div class="container">
+        <ul class="movie-list">
+            {% for movie in movies %}
+                <li class="movie-item">
+                    <div class="movie-poster">
+                        {% if movie.poster %}
+                            <img src="{% static 'posters/' %}{{ movie.poster }}" alt="{{ movie.title }}" class="poster">
+                        {% else %}
+                            <img src="{% static 'posters/no-image.jpg' %}" alt="Постер отсутствует" class="poster no-poster">
+                        {% endif %}
+                    </div>
+                    <div class="movie-info">
+                        <a href="{% url 'movie_detail' movie.id %}" class="movie-title">
+                            {{ movie.title }} ({{ movie.year }})
+                        </a>
+                        <div class="movie-details">
+                            <p>Жанр: {{ movie.user_tags }}</p>
+                            <p>Автор/Режиссёр: {{ movie.author }}</p>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
