@@ -58,6 +58,7 @@ body {
     text-decoration: none;
     transition: all 0.3s ease;
     margin-left: 1rem;
+    border: none;
 }
 
 .profile-btn { background-color: #27ae60; color: white; }
@@ -83,6 +84,7 @@ body {
     border: 2px solid #D8BFD8;
     border-radius: var(--border-radius);
     font-size: 1rem;
+    outline: none;
 }
 
 .search-btn {
@@ -240,6 +242,9 @@ body {
     margin: 50px;
     padding: 30px;
     width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .main_all {
     display: flex;
@@ -255,4 +260,92 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-right: 10px;
+}
+.entrance1 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 10px;
+}
+#id_username {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #D8BFD8;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    outline: none;
+}
+#id_password {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #D8BFD8;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    outline: none;
+}
+.btn_login {
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    background-color: #9932CC;
+    color: white;
+    margin: 10px;
+}
+.bttm {
+    text-decoration: none;
+}
+.bttm_text {
+    display: flex;
+    flex-direction: column;
+    margin: 5px;
+    align-items: center;
+}
+#id_email {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #D8BFD8;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    outline: none;
+}
+#id_password1 {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #D8BFD8;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    outline: none;
+}
+#id_password2 {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #D8BFD8;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    outline: none;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}
+#homeButton {
+    position: fixed;
+    top: 525px; 
+    right: 20px; 
+    z-index: 1000; 
+    background-color: #9932CC; 
+    color: white; 
+    border: none; 
+    border-radius: 5px;
+    padding: 10px 15px; 
+    cursor: pointer; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#homeButton:hover {
+    background-color: #8B008B;
 }
