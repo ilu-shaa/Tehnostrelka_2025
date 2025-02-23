@@ -5,23 +5,185 @@
     <meta charset="UTF-8">
     <title>{{ movie.title }}</title>
     {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="icon" href="{% static 'cut.png' %}">
 </head>
 <body>
-    <h1>{{ movie.title }} ({{ movie.year }})</h1>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🎬 Фильмотека</h1>
+            <nav class="auth-nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
+                    <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
+                    <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
 
-    <!-- Обложка (постер) -->
-    <!-- Предположим, что картинки лежат в /static/posters/ -->
-    <div>
-        <img src="{% static 'posters/' %}{{ movie.poster }}" alt="{{ movie.title }}" style="width: 200px;">
-    </div>
+    <main class="main-content">
+        <div class="container1">
+            <article class="movie-detail">
+                <div class="movie-header">
+                    <h1 class="movie-title">{{ movie.title }} <span class="movie-year">({{ movie.year }})</span></h1>
+                    
+                    <!-- Кнопка лайка -->
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'toggle_like' movie.id %}" method="post" class="like-form">
+                        {% csrf_token %}
+                        <button type="submit" class="like-btn {% if is_liked %}liked{% endif %}">
+                            ❤️ {{ movie.like_set.count }}
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
 
-    <p><strong>Жанры:</strong> {{ movie.user_tags }}</p>
-    <p><strong>Автор/Режиссёр:</strong> {{ movie.author }}</p>
-    <p><strong>Описание:</strong> {{ movie.plot }}</p>
+                <div class="movie-content">
+                    <div class="movie-poster">
+                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}" 
+                             alt="{{ movie.title }}" 
+                             class="poster-image">
+                    </div>
 
-    <!-- Пример вывода reviews как есть (JSON-строка) -->
-    <p><strong>Reviews (JSON-данные):</strong> {{ movie.reviews }}</p>
+                    <div class="movie-info">
+                        <div class="info-section">
+                            <h3>О фильме</h3>
+                            <p><strong>Режиссёр:</strong> {{ movie.author|default:"не указан" }}</p>
+                            <p><strong>Жанры:</strong> {{ movie.user_tags }}</p>
+                        </div>
 
-    <a href="{% url 'movie_list' %}">Вернуться к списку фильмов</a>
+                        <div class="info-section">
+                            <h3>Описание</h3>
+                            <p class="movie-plot">{{ movie.plot|default:"Описание отсутствует" }}</p>
+                        </div>
+
+                        <div class="info-section reviews-section">
+                            <h3>Рецензии</h3>
+                            {% if movie.reviews %}
+                                <ul class="reviews-list">
+                                    {% for review in movie.reviews %}
+                                    <li class="review-item">
+                                        <span class="review-source">{{ review.source }}:</span>
+                                        <span class="review-rating">{{ review.value }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="no-reviews">Рецензии отсутствуют</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="movie-footer">
+                    <a href="{% url 'movie_list' %}" class="btn back-btn">← К списку фильмов</a>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <style>
+        .movie-detail {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .movie-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .movie-title {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .movie-year {
+            color: #7f8c8d;
+            font-size: 0.8em;
+        }
+
+        .movie-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .poster-image {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+        }
+
+        .info-section h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .movie-plot {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .reviews-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-source {
+            color: var(--text-color);
+        }
+
+        .review-rating {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .no-reviews {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .back-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            margin-top: 2rem;
+        }
+
+        .like-btn {
+            background: none;
+            border: 2px solid var(--secondary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .like-btn.liked {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+    </style>
 </body>
 </html>

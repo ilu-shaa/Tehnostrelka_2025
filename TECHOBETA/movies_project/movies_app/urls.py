@@ -9,4 +9,6 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
+    path('toggle_like/<int:movie_id>/', views.toggle_like, name='toggle_like'),
+    path('recommendations/', views.recommendations, name='recommendations'),
 ]

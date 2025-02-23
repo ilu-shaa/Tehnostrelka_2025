@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Рекомендации</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+    {% include 'movies_app/movie_list.html' with movies=movies %}
+    
+    {% if not movies %}
+    <div class="no-results">
+        <h3>Пока нет рекомендаций. Начните ставить лайки!</h3>
+        <a href="{% url 'movie_list' %}">Перейти к списку фильмов</a>
+    </div>
+    {% endif %}
+</body>
+</html>

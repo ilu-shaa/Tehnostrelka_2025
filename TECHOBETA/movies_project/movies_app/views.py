@@ -73,3 +73,63 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect('movie_list')
+
+from django.contrib.auth.decorators import login_required
+from .models import Like
+
+def movie_detail(request, movie_id):
+    movie = get_object_or_404(Movie, id=movie_id)
+    is_liked = False
+    if request.user.is_authenticated:
+        is_liked = Like.objects.filter(user=request.user, movie=movie).exists()
+    
+    return render(request, 'movies_app/movie_detail.html', {
+        'movie': movie,
+        'is_liked': is_liked
+    })
+
+@login_required
+def toggle_like(request, movie_id):
+    movie = get_object_or_404(Movie, id=movie_id)
+    like, created = Like.objects.get_or_create(user=request.user, movie=movie)
+    
+    if not created:
+        like.delete()
+    
+    return redirect('movie_detail', movie_id=movie_id)
+
+from collections import defaultdict
+from django.db.models import Count
+
+def recommendations(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    # Получаем лайки текущего пользователя
+    user_likes = Like.objects.filter(user=request.user).values_list('movie_id', flat=True)
+    
+    # Находим пользователей с похожими лайками
+    similar_users = Like.objects.filter(
+        movie_id__in=user_likes
+    ).exclude(user=request.user).values('user').annotate(
+        common_likes=Count('user')
+    ).order_by('-common_likes')[:5]
+    
+    # Собираем рекомендации
+    similar_users_ids = [u['user'] for u in similar_users]
+    recommended_movies = Movie.objects.filter(
+        like__user_id__in=similar_users_ids
+    ).exclude(
+        id__in=user_likes
+    ).annotate(
+        likes_count=Count('like')
+    ).order_by('-likes_count')[:10]
+    
+    # Если рекомендаций мало, добавим популярные
+    if len(recommended_movies) < 5:
+        popular = Movie.objects.annotate(likes=Count('like')).order_by('-likes')[:5]
+        recommended_movies = list(recommended_movies) + list(popular)
+    
+    return render(request, 'movies_app/recommendations.html', {
+        'movies': recommended_movies
+    })
