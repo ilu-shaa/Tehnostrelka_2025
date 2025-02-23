@@ -24,7 +24,8 @@
     </header>
 
     <main class="main-content">
-        <div class="container">
+        <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
+        <div class="container1">
             <section class="search-section">
                 <form class="search-form" action="{% url 'movie_list' %}" method="GET">
                     <input type="text" 
@@ -89,5 +90,24 @@
             {% endif %}
         </div>
     </main>
+    <script>
+        // Показать/скрыть кнопку при прокрутке
+        window.onscroll = function() {
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.style.display = "flex"; // Показываем кнопку
+            } else {
+                scrollToTopBtn.style.display = "none"; // Скрываем кнопку
+            }
+        };
+
+        // Функция прокрутки вверх
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Плавная прокрутка
+            });
+        }
+    </script>
 </body>
 </html>
