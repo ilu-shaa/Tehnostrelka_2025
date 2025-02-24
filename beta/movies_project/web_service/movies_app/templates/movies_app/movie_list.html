@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Фильмотека</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="icon" href="{% static 'cut.png' %}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🎬 Фильмотека</h1>
+            <nav class="auth-nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
+                    <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
+                    <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
+        <div class="container1">
+            <section class="search-section">
+                <form class="search-form" action="{% url 'movie_list' %}" method="GET">
+                    <input type="text" 
+                           name="q" 
+                           placeholder="Поиск по названию, описанию или режиссёру..."
+                           value="{{ search_query }}"
+                           class="search-input">
+                    <button type="submit" class="search-btn">🔍 Найти</button>
+                </form>
+                
+                {% if search_query %}
+                <div class="search-results-header">
+                    <h2>Результаты поиска: "{{ search_query }}"</h2>
+                    <p>Найдено фильмов: {{ movies|length }}</p>
+                    <a href="{% url 'movie_list' %}" class="clear-search">× Сбросить поиск</a>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="genre-filter">
+                <nav class="genre-nav">
+                    <a href="{% url 'movie_list' %}" class="genre-link {% if not genre %}active{% endif %}">Все</a>
+                    {% for g in genres %}
+                        <a href="{% url 'genre_movies' g %}" 
+                           class="genre-link {% if g == genre %}active{% endif %}">
+                            {{ g }}
+                        </a>
+                    {% endfor %}
+                </nav>
+            </section>
+
+            {% if movies %}
+            <div class="movie-grid">
+                {% for movie in movies %}
+                <article class="movie-card">
+                    <div class="movie-poster">
+                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}" 
+                             alt="{{ movie.title }}" 
+                             loading="lazy">
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">
+                            <a href="{% url 'movie_detail' movie.id %}">{{ movie.title }}</a>
+                            <span class="movie-year">({{ movie.year }})</span>
+                        </h3>
+                        <div class="movie-meta">
+                            <p class="movie-director">🎬 {{ movie.author }}</p>
+                            <p class="movie-genres">🏷️ {{ movie.user_tags }}</p>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-results">
+                <img src="{% static 'images/no-results.svg' %}" 
+                     alt="Ничего не найдено" 
+                     class="no-results-image">
+                <h3 class="no-results-title">Фильмы не найдены</h3>
+                <p class="no-results-text">Попробуйте изменить поисковый запрос</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+    <script>
+        // Показать/скрыть кнопку при прокрутке
+        window.onscroll = function() {
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.style.display = "flex"; // Показываем кнопку
+            } else {
+                scrollToTopBtn.style.display = "none"; // Скрываем кнопку
+            }
+        };
+
+        // Функция прокрутки вверх
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Плавная прокрутка
+            });
+        }
+    </script>
+</body>
+</html>

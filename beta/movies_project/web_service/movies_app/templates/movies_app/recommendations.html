@@ -1,0 +1,31 @@
+{% extends 'movies_app/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Персональные рекомендации</h2>
+    {% if info %}
+    <div class="alert alert-info">{{ info }}</div>
+    {% endif %}
+    
+    <div class="row">
+        {% for movie in movies %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }} ({{ movie.year }})</h5>
+                    <p class="card-text">{{ movie.plot|truncatechars:150 }}</p>
+                    <a href="{% url 'movie_detail' movie.id %}" class="btn btn-primary">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col">
+            <div class="alert alert-warning">Не найдено рекомендаций. Попробуйте оценить больше фильмов.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
