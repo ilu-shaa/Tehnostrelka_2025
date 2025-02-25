@@ -1,15 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser, PermissionsMixin
 from django.db import models
+from django.db import models
+from django.contrib.auth.models import User  # или ваша кастомная модель пользователя
 
 class Movie(models.Model):
     title = models.CharField(max_length=255)
-    year = models.IntegerField()
     user_tags = models.TextField(blank=True, null=True)
-    reviews = models.TextField(blank=True, null=True)
-    author = models.CharField(max_length=255, blank=True, null=True)
-    plot = models.TextField(blank=True, null=True)
     poster = models.URLField(blank=True, null=True)
+    plot = models.TextField(blank=True, null=True)
+    # ... и другие поля
 
     def __str__(self):
         return self.title
@@ -52,3 +52,18 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ('user', 'movie')
+
+
+
+from django.db import models
+
+from django.utils import timezone
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.movie.title}'

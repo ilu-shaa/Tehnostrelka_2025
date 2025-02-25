@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.contrib.auth import login, authenticate, logout
-from .models import Movie
+from django.contrib.auth.decorators import login_required
+from .models import Movie, Like
 from .forms import RegistrationForm, LoginForm
 
 def movie_list(request):
@@ -40,10 +41,6 @@ def genre_movies(request, genre):
         'search_query': ''
     })
 
-def movie_detail(request, movie_id):
-    movie = get_object_or_404(Movie, id=movie_id)
-    return render(request, 'movies_app/movie_detail.html', {'movie': movie})
-
 def profile(request):
     return render(request, 'movies_app/profile.html')
 
@@ -74,62 +71,101 @@ def user_logout(request):
     logout(request)
     return redirect('movie_list')
 
-from django.contrib.auth.decorators import login_required
-from .models import Like
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Movie, Like, Comment
+from .forms import CommentForm
 
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     is_liked = False
     if request.user.is_authenticated:
         is_liked = Like.objects.filter(user=request.user, movie=movie).exists()
-    
+
+    comments = movie.comments.all().order_by('-created_at')
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.movie = movie
+            comment.save()
+            return redirect('movie_detail', movie_id=movie_id)
+    else:
+        form = CommentForm()
+
     return render(request, 'movies_app/movie_detail.html', {
         'movie': movie,
-        'is_liked': is_liked
+        'is_liked': is_liked,
+        'comments': comments,
+        'form': form
     })
-
 @login_required
 def toggle_like(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     like, created = Like.objects.get_or_create(user=request.user, movie=movie)
-    
     if not created:
         like.delete()
-    
+    # после переключения лайка вернуться на detail или рекомендации
     return redirect('movie_detail', movie_id=movie_id)
 
-from collections import defaultdict
-from django.db.models import Count
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Count
+from django.contrib.auth.decorators import login_required
+from .models import Movie, Like
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q, Count
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from .models import Movie, Like, Comment
+from .forms import RegistrationForm, LoginForm, CommentForm
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q, Count
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from .models import Movie, Like, Comment
+from .forms import RegistrationForm, LoginForm, CommentForm
+
+@login_required
 def recommendations(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
-    # Получаем лайки текущего пользователя
-    user_likes = Like.objects.filter(user=request.user).values_list('movie_id', flat=True)
-    
-    # Находим пользователей с похожими лайками
-    similar_users = Like.objects.filter(
-        movie_id__in=user_likes
-    ).exclude(user=request.user).values('user').annotate(
-        common_likes=Count('user')
-    ).order_by('-common_likes')[:5]
-    
-    # Собираем рекомендации
-    similar_users_ids = [u['user'] for u in similar_users]
-    recommended_movies = Movie.objects.filter(
-        like__user_id__in=similar_users_ids
-    ).exclude(
-        id__in=user_likes
-    ).annotate(
-        likes_count=Count('like')
-    ).order_by('-likes_count')[:10]
-    
-    # Если рекомендаций мало, добавим популярные
-    if len(recommended_movies) < 5:
-        popular = Movie.objects.annotate(likes=Count('like')).order_by('-likes')[:5]
-        recommended_movies = list(recommended_movies) + list(popular)
-    
+    # Получаем все фильмы, которые лайкнул текущий пользователь
+    user_liked_movie_ids = Like.objects.filter(user=request.user).values_list('movie_id', flat=True)
+    user_liked_movies = Movie.objects.filter(id__in=user_liked_movie_ids)
+
+    # Собираем все жанры, которые встречаются в понравившихся фильмах
+    liked_genres = set()
+    for movie in user_liked_movies:
+        if movie.user_tags:
+            # Предполагаем, что жанры хранятся в виде "Action, Drama" (через запятую)
+            tags = [tag.strip().lower() for tag in movie.user_tags.split(',')]
+            liked_genres.update(tags)  # добавляем в set()
+
+    # Если пользователь не лайкнул ни одного фильма, показываем популярные фильмы
+    if not liked_genres:
+        popular_movies = Movie.objects.annotate(likes_count=Count('like')).order_by('-likes_count')[:10]
+        return render(request, 'movies_app/recommendations.html', {
+            'movies': popular_movies
+        })
+
+    # Ищем фильмы, которые содержат жанры из liked_genres
+    # Используем Q-объекты для поиска по нескольким жанрам
+    query = Q()
+    for genre in liked_genres:
+        query |= Q(user_tags__icontains=genre)
+
+    # Исключаем фильмы, которые пользователь уже лайкнул
+    recommended_movies = Movie.objects.filter(query).exclude(id__in=user_liked_movie_ids)\
+                                      .annotate(likes_count=Count('like'))\
+                                      .order_by('-likes_count')
+
+    # Если рекомендаций мало, добавляем популярные фильмы
+    if recommended_movies.count() < 10:
+        popular_movies = Movie.objects.annotate(likes_count=Count('like')).order_by('-likes_count')[:10]
+        recommended_movies = list(recommended_movies) + list(popular_movies)
+
     return render(request, 'movies_app/recommendations.html', {
         'movies': recommended_movies
     })

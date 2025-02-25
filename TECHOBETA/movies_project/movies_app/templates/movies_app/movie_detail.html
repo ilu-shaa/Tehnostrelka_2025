@@ -1,6 +1,7 @@
 <!-- movies_app/templates/movies_app/movie_detail.html -->
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>{{ movie.title }}</title>
@@ -8,17 +9,18 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="icon" href="{% static 'cut.png' %}">
 </head>
+
 <body>
     <header class="header">
         <div class="container">
             <h1 class="logo">🎬 Фильмотека</h1>
             <nav class="auth-nav">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
-                    <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
+                <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
+                <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
-                    <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
+                <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
+                <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
                 {% endif %}
             </nav>
         </div>
@@ -29,7 +31,7 @@
             <article class="movie-detail">
                 <div class="movie-header">
                     <h1 class="movie-title">{{ movie.title }} <span class="movie-year">({{ movie.year }})</span></h1>
-                    
+
                     <!-- Кнопка лайка -->
                     {% if user.is_authenticated %}
                     <form action="{% url 'toggle_like' movie.id %}" method="post" class="like-form">
@@ -43,9 +45,8 @@
 
                 <div class="movie-content">
                     <div class="movie-poster">
-                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}" 
-                             alt="{{ movie.title }}" 
-                             class="poster-image">
+                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}"
+                            alt="{{ movie.title }}" class="poster-image">
                     </div>
 
                     <div class="movie-info">
@@ -63,16 +64,16 @@
                         <div class="info-section reviews-section">
                             <h3>Рецензии</h3>
                             {% if movie.reviews %}
-                                <ul class="reviews-list">
-                                    {% for review in movie.reviews %}
-                                    <li class="review-item">
-                                        <span class="review-source">{{ review.source }}:</span>
-                                        <span class="review-rating">{{ review.value }}</span>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                            <ul class="reviews-list">
+                                {% for review in movie.reviews %}
+                                <li class="review-item">
+                                    <span class="review-source">{{ review.source }}:</span>
+                                    <span class="review-rating">{{ review.value }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
                             {% else %}
-                                <p class="no-reviews">Рецензии отсутствуют</p>
+                            <p class="no-reviews">Рецензии отсутствуют</p>
                             {% endif %}
                         </div>
                     </div>
@@ -82,6 +83,36 @@
                     <a href="{% url 'movie_list' %}" class="btn back-btn">← К списку фильмов</a>
                 </div>
             </article>
+            <!-- Добавьте этот блок после секции с рецензиями -->
+            <div class="info-section comments-section">
+                <h3>Комментарии</h3>
+                {% if comments %}
+                <ul class="comments-list">
+                    {% for comment in comments %}
+                    <li class="comment-item">
+                        <span class="comment-user">{{ comment.user.username }}</span>
+                        <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                        <p class="comment-text">{{ comment.text }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="no-comments">Комментариев пока нет.</p>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <form action="{% url 'movie_detail' movie.id %}" method="post" class="comment-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn comment-btn">Добавить комментарий</button>
+                </form>
+                {% else %}
+                <p class="login-to-comment">Чтобы оставить комментарий, <a href="{% url 'login' %}">войдите</a> или <a
+                        href="{% url 'register' %}">зарегистрируйтесь</a>.</p>
+                {% endif %}
+            </div>
+
+
         </div>
     </main>
 
@@ -120,7 +151,7 @@
         .poster-image {
             width: 100%;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .info-section {
@@ -186,4 +217,5 @@
         }
     </style>
 </body>
+
 </html>
