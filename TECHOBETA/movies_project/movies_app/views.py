@@ -4,6 +4,62 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from .models import Movie, Like
 from .forms import RegistrationForm, LoginForm
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
+def semantic_search(request):
+    """
+    Пример отдельного view для семантического поиска.
+    На форму мы будем отправлять GET-параметр ?semantic_q=
+    """
+    query = request.GET.get('semantic_q', '').strip()
+    
+    if not query:
+        # Если пользователь ничего не ввёл, либо пришёл без параметра 
+        # — просто показываем пустую страницу/или список всех фильмов
+        return render(request, 'movies_app/semantic_search.html', {
+            'movies': [],
+            'query': ''
+        })
+    
+    # 1. Считаем вектор для запроса
+    query_embedding = model.encode(query)
+    
+    # 2. Выгружаем все фильмы (или отфильтрованные), и для каждого считаем похожесть
+    movies = Movie.objects.all()
+    
+    # Будем собирать (movie, similarity)
+    results = []
+    for m in movies:
+        # Если у фильма нет вектора, пропускаем
+        if not m.plot_vector:
+            continue
+        movie_vector = np.array(m.get_plot_vector(), dtype=np.float32)
+        # Косинусная похожесть = (A dot B) / (|A|*|B|)
+        # В numpy есть своя функция np.dot, но придётся ручками делить на нормы
+        dot = np.dot(query_embedding, movie_vector)
+        norm_a = np.linalg.norm(query_embedding)
+        norm_b = np.linalg.norm(movie_vector)
+        if norm_a == 0 or norm_b == 0:
+            similarity = 0.0
+        else:
+            similarity = dot / (norm_a * norm_b)
+        
+        results.append((m, similarity))
+    
+    # 3. Сортируем по убыванию similarity
+    results.sort(key=lambda x: x[1], reverse=True)
+    
+    # 4. Берём первые N результатов (например, 20)
+    top_results = [r[0] for r in results[:20]]
+    
+    return render(request, 'movies_app/semantic_search.html', {
+        'movies': top_results,
+        'query': query
+    })
+
 
 def movie_list(request):
     search_query = request.GET.get('q', '')

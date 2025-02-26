@@ -11,4 +11,6 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('toggle_like/<int:movie_id>/', views.toggle_like, name='toggle_like'),
     path('recommendations/', views.recommendations, name='recommendations'),
+    path('semantic_search/', views.semantic_search, name='semantic_search'),
+
 ]

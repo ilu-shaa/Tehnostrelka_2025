@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser, PermissionsMixin
 from django.db import models
+import json
 from django.contrib.auth.models import User  # или ваша кастомная модель пользователя
 
 
@@ -11,9 +12,20 @@ class Movie(models.Model):
     author = models.CharField(max_length=200, null=True, blank=True)
     plot = models.TextField(null=True, blank=True)
     poster = models.CharField(max_length=200, null=True, blank=True)
+    plot_vector = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} ({self.year})"
+    
+    def set_plot_vector(self, vector_list):
+        self.plot_vector = json.dumps(vector_list)
+
+    def get_plot_vector(self):
+        if not self.plot_vector:
+            return None
+        return json.loads(self.plot_vector)
+
+
         
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None):
