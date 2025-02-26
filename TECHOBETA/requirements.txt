@@ -8,8 +8,7 @@ python-dotenv==1.0.0
 gunicorn==20.1.0
 Flask==2.3.2
 omdb==0.10.1
-
-#sentence-transformers==2.2.2
-#torch>=1.9
+sentence-transformers==2.2.2
+torch>=1.9
 #numpy>=1.21
 #scikit-learn==1.2

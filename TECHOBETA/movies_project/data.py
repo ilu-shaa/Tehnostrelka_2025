@@ -2,44 +2,41 @@ import os
 import csv
 import django
 
-# Настройка Django-окружения
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'movies_project.settings')
 django.setup()
 
+from django.core.management import call_command
 from movies_app.models import Movie
 
 def create_table():
-    """
-    Создает таблицу в базе данных на основе модели Movie.
-    """
-    from django.core.management import execute_from_command_line
-    execute_from_command_line(['manage.py', 'makemigrations', 'movies_app'])
-    execute_from_command_line(['manage.py', 'migrate'])
+    call_command('makemigrations', 'movies_app', interactive=False)
+    call_command('migrate', interactive=False)
 
-# Создание таблицы в базе данных
 create_table()
 
-# Путь к CSV файлу
-csv_file_path = "movies.csv"
+csv_file_path = "D:\Learn\TechStrela\Tehnostrelka_2025\TECHOBETA\movies_project\movies.csv"
 
-# Импорт данных из CSV в базу данных
 with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
-        year = row['year'].split('–')[0]
+        row.pop('Unnamed: 0', None)
+        row.pop('', None)
+
+        year_str = row.get('year', '').split('–')[0].strip() 
         try:
-            year = int(year)
+            year = int(year_str)
         except ValueError:
-            print(f"⚠ Пропущен фильм {row['title']} с некорректным годом: {row['year']}")
-            continue  
+            print(f"⚠ Пропущен фильм {row.get('title')} с некорректным годом: {year_str}")
+            year = None
+
         Movie.objects.create(
-            title=row['title'],
+            title=row.get('title') or "",         # На случай, если ячейка пустая
             year=year,
-            user_tags=row['user_tags'],
-            reviews=row['reviews'],
-            author=row['author'],
-            plot=row['plot'],
-            poster=row['poster']
+            user_tags=row.get('user_tags') or "",
+            reviews=row.get('reviews') or "",
+            author=row.get('author') or "",
+            plot=row.get('plot') or "",
+            poster=row.get('poster') or ""
         )
 
 print("✅ Данные успешно загружены в базу!")
