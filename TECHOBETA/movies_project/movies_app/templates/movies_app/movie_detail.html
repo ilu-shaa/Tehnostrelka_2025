@@ -1,6 +1,7 @@
 <!-- movies_app/templates/movies_app/movie_detail.html -->
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>{{ movie.title }}</title>
@@ -8,17 +9,18 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="icon" href="{% static 'cut.png' %}">
 </head>
+
 <body>
     <header class="header">
         <div class="container">
             <h1 class="logo">🎬 Фильмотека</h1>
             <nav class="auth-nav">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
-                    <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
+                <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
+                <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
-                    <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
+                <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
+                <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
                 {% endif %}
             </nav>
         </div>
@@ -30,7 +32,7 @@
             <article class="movie-detail">
                 <div class="movie-header">
                     <h1 class="movie-title">{{ movie.title }} <span class="movie-year">({{ movie.year }})</span></h1>
-                    
+
                     <!-- Кнопка лайка -->
                     {% if user.is_authenticated %}
                     <form action="{% url 'toggle_like' movie.id %}" method="post" class="like-form">
@@ -44,9 +46,8 @@
 
                 <div class="movie-content">
                     <div class="movie-poster">
-                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}" 
-                             alt="{{ movie.title }}" 
-                             class="poster-image">
+                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}"
+                            alt="{{ movie.title }}" class="poster-image">
                     </div>
 
                     <div class="movie-info">
@@ -64,16 +65,16 @@
                         <div class="info-section reviews-section">
                             <h3>Рецензии</h3>
                             {% if movie.reviews %}
-                                <ul class="reviews-list">
-                                    {% for review in movie.reviews %}
-                                    <li class="review-item">
-                                        <span class="review-source">{{ review.source }}:</span>
-                                        <span class="review-rating">{{ review.value }}</span>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                            <ul class="reviews-list">
+                                {% for review in movie.reviews %}
+                                <li class="review-item">
+                                    <span class="review-source">{{ review.source }}:</span>
+                                    <span class="review-rating">{{ review.value }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
                             {% else %}
-                                <p class="no-reviews">Рецензии отсутствуют</p>
+                            <p class="no-reviews">Рецензии отсутствуют</p>
                             {% endif %}
                         </div>
                     </div>
@@ -83,6 +84,36 @@
                     <a href="{% url 'movie_list' %}" class="btn back-btn">← К списку фильмов</a>
                 </div>
             </article>
+            <!-- Добавьте этот блок после секции с рецензиями -->
+            <div class="info-section comments-section">
+                <h3>Комментарии</h3>
+                {% if comments %}
+                <ul class="comments-list">
+                    {% for comment in comments %}
+                    <li class="comment-item">
+                        <span class="comment-user">{{ comment.user.username }}</span>
+                        <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                        <p class="comment-text">{{ comment.text }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="no-comments">Комментариев пока нет.</p>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <form action="{% url 'movie_detail' movie.id %}" method="post" class="comment-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn comment-btn">Добавить комментарий</button>
+                </form>
+                {% else %}
+                <p class="login-to-comment">Чтобы оставить комментарий, <a href="{% url 'login' %}">войдите</a> или <a
+                        href="{% url 'register' %}">зарегистрируйтесь</a>.</p>
+                {% endif %}
+            </div>
+
+
         </div>
     </main>
     <script>
@@ -103,6 +134,102 @@
                 behavior: 'smooth' // Плавная прокрутка
             });
         }
+<<<<<<< HEAD
     </script>
+=======
+
+        .movie-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .movie-title {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .movie-year {
+            color: #7f8c8d;
+            font-size: 0.8em;
+        }
+
+        .movie-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .poster-image {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+        }
+
+        .info-section h3 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .movie-plot {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .reviews-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-source {
+            color: var(--text-color);
+        }
+
+        .review-rating {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .no-reviews {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .back-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            margin-top: 2rem;
+        }
+
+        .like-btn {
+            background: none;
+            border: 2px solid var(--secondary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .like-btn.liked {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+    </style>
+>>>>>>> 8f4c2e658f1816224c75ed15f2f67c39665d95c1
 </body>
+
 </html>

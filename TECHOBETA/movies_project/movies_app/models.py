@@ -1,18 +1,31 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, AbstractUser, PermissionsMixin
 from django.db import models
+import json
+from django.contrib.auth.models import User  # или ваша кастомная модель пользователя
+
 
 class Movie(models.Model):
-    title = models.CharField(max_length=255)
-    year = models.IntegerField()
-    user_tags = models.TextField(blank=True, null=True)
-    reviews = models.TextField(blank=True, null=True)
-    author = models.CharField(max_length=255, blank=True, null=True)
-    plot = models.TextField(blank=True, null=True)
-    poster = models.URLField(blank=True, null=True)
+    title = models.CharField(max_length=200)
+    year = models.IntegerField(null=True, blank=True)
+    user_tags = models.TextField(null=True, blank=True)
+    reviews = models.TextField(null=True, blank=True)
+    author = models.CharField(max_length=200, null=True, blank=True)
+    plot = models.TextField(null=True, blank=True)
+    poster = models.CharField(max_length=200, null=True, blank=True)
+    plot_vector = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.title} ({self.year})"
+    
+    def set_plot_vector(self, vector_list):
+        self.plot_vector = json.dumps(vector_list)
+
+    def get_plot_vector(self):
+        if not self.plot_vector:
+            return None
+        return json.loads(self.plot_vector)
+
+
         
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None):
@@ -52,3 +65,18 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ('user', 'movie')
+
+
+
+from django.db import models
+
+from django.utils import timezone
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.movie.title}'
