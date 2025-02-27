@@ -25,6 +25,7 @@
     </header>
 
     <main class="main-content">
+        <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
         <div class="container1">
             <article class="movie-detail">
                 <div class="movie-header">
@@ -84,106 +85,24 @@
             </article>
         </div>
     </main>
+    <script>
+        // Показать/скрыть кнопку при прокрутке
+        window.onscroll = function() {
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.style.display = "flex"; // Показываем кнопку
+            } else {
+                scrollToTopBtn.style.display = "none"; // Скрываем кнопку
+            }
+        };
 
-    <style>
-        .movie-detail {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 2rem;
-            margin-top: 2rem;
+        // Функция прокрутки вверх
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Плавная прокрутка
+            });
         }
-
-        .movie-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .movie-title {
-            color: var(--primary-color);
-            margin: 0;
-        }
-
-        .movie-year {
-            color: #7f8c8d;
-            font-size: 0.8em;
-        }
-
-        .movie-content {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-        }
-
-        .poster-image {
-            width: 100%;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .info-section {
-            margin-bottom: 2rem;
-        }
-
-        .info-section h3 {
-            color: var(--secondary-color);
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-
-        .movie-plot {
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .reviews-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .review-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .review-source {
-            color: var(--text-color);
-        }
-
-        .review-rating {
-            color: var(--secondary-color);
-            font-weight: 500;
-        }
-
-        .no-reviews {
-            color: #7f8c8d;
-            font-style: italic;
-        }
-
-        .back-btn {
-            background-color: var(--secondary-color);
-            color: white;
-            margin-top: 2rem;
-        }
-
-        .like-btn {
-            background: none;
-            border: 2px solid var(--secondary-color);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .like-btn.liked {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-    </style>
+    </script>
 </body>
 </html>
