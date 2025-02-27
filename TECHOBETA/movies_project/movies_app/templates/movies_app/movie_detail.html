@@ -27,6 +27,7 @@
     </header>
 
     <main class="main-content">
+        <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
         <div class="container1">
             <article class="movie-detail">
                 <div class="movie-header">
@@ -115,15 +116,27 @@
 
         </div>
     </main>
+    <script>
+        // Показать/скрыть кнопку при прокрутке
+        window.onscroll = function() {
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.style.display = "flex"; // Показываем кнопку
+            } else {
+                scrollToTopBtn.style.display = "none"; // Скрываем кнопку
+            }
+        };
 
-    <style>
-        .movie-detail {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 2rem;
-            margin-top: 2rem;
+        // Функция прокрутки вверх
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Плавная прокрутка
+            });
         }
+<<<<<<< HEAD
+    </script>
+=======
 
         .movie-header {
             display: flex;
@@ -216,6 +229,7 @@
             color: white;
         }
     </style>
+>>>>>>> 8f4c2e658f1816224c75ed15f2f67c39665d95c1
 </body>
 
 </html>
