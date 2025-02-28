@@ -26,9 +26,10 @@
 
 ### Установка
 - git clone https://github.com/ilu-shaa/Tehnostrelka_2025.git
-- python -m venv venv
+- cd Tehnostrelka_2025\
+- python -m venv .venv
 - .venv\Scripts\activate 
 - pip install -r requirements.txt
 - pip install git+https://github.com/UKPLab/sentence-transformers.git
-- cd TechStrel\Tehnostrelka_2025\TECHOBETA\movies_projec\
+- cd Tehnostrelka_2025\TECHOBETA\movies_projec\
 - python manage.py runserver
