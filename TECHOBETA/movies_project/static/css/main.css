@@ -28,7 +28,7 @@ body {
 }
 .container1 {
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 30px auto;
     padding: 0 20px;
 }
 
@@ -75,7 +75,7 @@ body {
     display: flex;
     gap: 1rem;
     max-width: 800px;
-    margin: 0 auto;
+    margin: 10px auto;
 }
 
 .search-input {
@@ -214,8 +214,8 @@ body {
 #scrollToTopBtn {
     position: fixed;
     bottom: 20px;
-    right: 20px;
-    top: 500px;
+    right: 50px;
+    top: 530px;
     z-index: 1001;
     background-color: #DA70D6;
     color: white;
@@ -350,6 +350,18 @@ p {
 #homeButton:hover {
     background-color: #8B008B;
 }
+#homeButton1 {
+    background-color: #9932CC; 
+    color: white; 
+    border: none; 
+    border-radius: 5px;
+    padding: 10px 15px; 
+    cursor: pointer; 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+#homeButton1:hover {
+    background-color: #8B008B;
+}
 .movie-detail {
     background: white;
     border-radius: var(--border-radius);
@@ -432,7 +444,7 @@ p {
 .back-btn {
     background-color: var(--secondary-color);
     color: white;
-    margin-top: 2rem;
+    margin-top: 30px;
 }
 
 .like-btn {
@@ -450,8 +462,8 @@ p {
 }
 .movie-footer {
     position: fixed;
-    top: 525px; 
-    right: 20px; 
+    top: 570px; 
+    left: 20px; 
     z-index: 1000; 
 }
 .profile_all {
@@ -459,4 +471,18 @@ p {
     margin: 50px;
     padding: 30px 50px;
     border-radius: 20px;
+}
+h1 {
+    text-align: center;
+    color:#800080;
+}
+.recommendations-title {
+    text-align: center;
+    color:#800080;
+}
+.name {
+    display: flex;
+}
+h3 {
+    margin: 0px 10px;
 }
