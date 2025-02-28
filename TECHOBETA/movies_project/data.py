@@ -14,7 +14,7 @@ def create_table():
 
 create_table()
 
-csv_file_path = "C:\\Users\\ilua-pc\\Desktop\\TechStrela\\Tehnostrelka_2025\\TECHOBETA\\movies_project\\movies.csv"
+csv_file_path = "C:\\Users\\Nikitosik\\VSCODE\\Tehnostrelka_2025\\TECHOBETA\\movies.csv"
 
 with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
