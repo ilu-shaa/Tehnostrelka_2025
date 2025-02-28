@@ -1,7 +1,6 @@
 # Фильмотека — платформа для поиска и рекомендации фильмов
 
-[![Статус сборки](https://img.shields.io/badge/статус-в%20разработке-yellow)](https://github.com/ваш-репозиторий)
-[![Лицензия](https://img.shields.io/badge/лицензия-MIT-blue)](https://opensource.org/licenses/MIT)
+[![Статус сборки](https://img.shields.io/badge/статус-в%20разработке-yellow)](https://github.com/ilu-shaa/Tehnostrelka_2025.git)
 
 ## 🎬 Что делает проект?
 Платформа предоставляет:
@@ -20,12 +19,17 @@
 ## 🚀 Как начать работу?
 
 ### Предварительные требования
-- Python 3.12
+- Python 3.12.4
 - pip
-- Виртуальное окружение (рекомендуется)
+- Виртуальное окружение 
 
 
 ### Установка
-1. Клонировать репозиторий:
-```bash
-git clone https://github.com/ваш-репозиторий.git
+- git clone https://github.com/ilu-shaa/Tehnostrelka_2025.git
+- python -m venv venv
+- .venv\Scripts\activate 
+- pip install -r requirements.txt
+- pip install git+https://github.com/UKPLab/sentence-transformers.git
+- cd TechStrel\Tehnostrelka_2025\TECHOBETA\movies_projec\
+- pip install git+https://github.com/UKPLab/sentence-transformers.git
+- python manage.py runserver
