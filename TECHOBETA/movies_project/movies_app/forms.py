@@ -18,6 +18,17 @@ from django import forms
 from .models import Comment
 
 class CommentForm(forms.ModelForm):
+    # Переопределяем поле rating, чтобы пользователь выбирал его из вариантов 1..5
+    rating = forms.ChoiceField(
+        choices=[(i, f"{i}★") for i in range(1, 6)],
+        label="Оценка",
+        widget=forms.RadioSelect,   # Можно выбрать другой вид, например Select
+        initial=5
+    )
+
     class Meta:
         model = Comment
-        fields = ['text']
+        fields = ['text', 'rating']  # Добавили rating в список выводимых полей
+        labels = {
+            'text': 'Комментарий',
+        }

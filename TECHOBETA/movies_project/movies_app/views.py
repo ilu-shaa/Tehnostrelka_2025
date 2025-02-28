@@ -97,9 +97,45 @@ def genre_movies(request, genre):
         'search_query': ''
     })
 
+@login_required
 def profile(request):
-    return render(request, 'movies_app/profile.html')
+    # 1. Получаем все понравившиеся фильмы
+    user_liked_movie_ids = Like.objects.filter(user=request.user).values_list('movie_id', flat=True)
+    user_liked_movies = Movie.objects.filter(id__in=user_liked_movie_ids)
 
+    # 2. Собираем все жанры (user_tags) у понравившихся фильмов
+    liked_genres = set()
+    for movie in user_liked_movies:
+        if movie.user_tags:
+            tags = [tag.strip().lower() for tag in movie.user_tags.split(',')]
+            liked_genres.update(tags)
+
+    # 3. Если жанров нет, отдаём популярные фильмы
+    if not liked_genres:
+        popular_movies = Movie.objects.annotate(likes_count=Count('like')).order_by('-likes_count')[:10]
+        return render(request, 'movies_app/profile.html', {
+            'movies': popular_movies
+        })
+    
+    # 4. Строим запрос на похожие жанры
+    query = Q()
+    for genre in liked_genres:
+        query |= Q(user_tags__icontains=genre)
+
+    # Исключаем фильмы, уже лайкнутые пользователем
+    recommended_movies = (Movie.objects.filter(query)
+                                      .exclude(id__in=user_liked_movie_ids)
+                                      .annotate(likes_count=Count('like'))
+                                      .order_by('-likes_count'))
+
+    # 5. Если рекомендаций меньше 10, добавим популярные
+    if recommended_movies.count() < 10:
+        popular_movies = Movie.objects.annotate(likes_count=Count('like')).order_by('-likes_count')[:10]
+        recommended_movies = list(recommended_movies) + list(popular_movies)
+
+    return render(request, 'movies_app/profile.html', {
+        'movies': recommended_movies
+    })
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -131,12 +167,41 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Movie, Like, Comment
 from .forms import CommentForm
 
+# views.py (у вас уже есть эта функция, покажу лишь фрагмент с комментариями)
+
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+import json
+
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+import json
+
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+
+import ast  # Добавляем модуль ast
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     is_liked = False
     if request.user.is_authenticated:
         is_liked = Like.objects.filter(user=request.user, movie=movie).exists()
 
+    # Подгружаем комментарии
     comments = movie.comments.all().order_by('-created_at')
 
     if request.method == 'POST':
@@ -150,12 +215,31 @@ def movie_detail(request, movie_id):
     else:
         form = CommentForm()
 
+    # Получаем рецензии из поля reviews
+    reviews = []
+    if movie.reviews:
+        try:
+            # Пытаемся обработать как JSON
+            reviews = json.loads(movie.reviews)
+        except json.JSONDecodeError:
+            try:
+                # Если JSON не удалось обработать, пробуем ast.literal_eval
+                reviews = ast.literal_eval(movie.reviews)
+            except (ValueError, SyntaxError) as e:
+                print(f"Ошибка при обработке reviews: {e}")
+                reviews = []
+
+    # Отладочный вывод для проверки данных
+    print("Рецензии:", reviews)
+
     return render(request, 'movies_app/movie_detail.html', {
         'movie': movie,
         'is_liked': is_liked,
         'comments': comments,
-        'form': form
+        'form': form,
+        'reviews': reviews
     })
+    
 @login_required
 def toggle_like(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)

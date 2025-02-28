@@ -8,14 +8,88 @@
     <link rel="icon" href="{% static 'cut.png' %}">
 </head>
 <body>
-    <h1>Личный кабинет</h1>
-    <p>Добро пожаловать в ваш личный кабинет!</p>
-    <!-- Добавьте сюда контент для личного кабинета -->
-    <div class="recommendations-section">
-        <h2>Персональные рекомендации</h2>
-        <a href="{% url 'recommendations' %}" class="btn recommend-btn">
-            Показать рекомендации
-        </a>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🎬 Фильмотека</h1>
+            <nav class="auth-nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
+                    <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
+                    <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    <div class="profile_all">
+        <h1>Личный кабинет</h1>
+        <div class="name">
+            <h3>Имя пользователя:</h3>
+            <h3> {{ user.username }}</h3>
+        </div>
+        </head>
+            <main class="main-content">
+                <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
+                <div class="container1">
+                    <!-- Заголовок для раздела рекомендаций -->
+                    <a href="{% url 'movie_list' %}" class="btn back-btn">← К списку фильмов</a>
+                    <h2 class="recommendations-title">Ваши рекомендации</h2>
+                    
+                    {% if movies %}
+                        <div class="movie-grid">
+                            {% for movie in movies %}
+                            <article class="movie-card">
+                                <div class="movie-poster">
+                                    <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}" 
+                                         alt="{{ movie.title }}" 
+                                         loading="lazy">
+                                </div>
+                                <div class="movie-info">
+                                    <h3 class="movie-title">
+                                        <a href="{% url 'movie_detail' movie.id %}">{{ movie.title }}</a>
+                                        <span class="movie-year">({{ movie.year }})</span>
+                                    </h3>
+                                    <div class="movie-meta">
+                                        <p class="movie-director">🎬 {{ movie.author }}</p>
+                                        <p class="movie-genres">🏷️ {{ movie.user_tags }}</p>
+                                    </div>
+                                </div>
+                            </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="no-results">
+                            <img src="{% static 'images/no-results.svg' %}" 
+                                 alt="Ничего не найдено" 
+                                 class="no-results-image">
+                            <h3 class="no-results-title">Пока нет рекомендаций</h3>
+                            <p class="no-results-text">Поставьте лайк нескольким фильмам, чтобы мы могли подобрать что-то интересное.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+            
+            <script>
+                // Показать/скрыть кнопку при прокрутке
+                window.onscroll = function() {
+                    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+                    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                        scrollToTopBtn.style.display = "flex"; // Показываем кнопку
+                    } else {
+                        scrollToTopBtn.style.display = "none"; // Скрываем кнопку
+                    }
+                };
+        
+                // Функция прокрутки вверх
+                function scrollToTop() {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Плавная прокрутка
+                    });
+                }
+            </script>
+        </div>
     </div>
 </body>
 </html>
