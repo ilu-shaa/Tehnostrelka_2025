@@ -24,123 +24,16 @@
     </header>
     <div class="profile_all">
         <h1>Личный кабинет</h1>
-        <p>Добро пожаловать в ваш личный кабинет!</p>
-        <h3>Имя пользователя:</h3><h3>---</h3>
-        <div class="recommendations-section">
-            <h2>Персональные рекомендации</h2>
-            <style>
-                /* Стили для улучшения внешнего вида */
-                .recommendations-title {
-                    text-align: center;
-                    margin-bottom: 2rem;
-                    color: var(--primary-color);
-                }
-        
-                .movie-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                    gap: 1.5rem;
-                    padding: 1rem;
-                }
-        
-                .movie-card {
-                    background: white;
-                    border-radius: var(--border-radius);
-                    box-shadow: var(--box-shadow);
-                    overflow: hidden;
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
-                }
-        
-                .movie-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-                }
-        
-                .movie-poster img {
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                }
-        
-                .movie-info {
-                    padding: 1rem;
-                }
-        
-                .movie-title {
-                    font-size: 1.2rem;
-                    margin: 0;
-                    color: var(--primary-color);
-                }
-        
-                .movie-title a {
-                    text-decoration: none;
-                    color: inherit;
-                }
-        
-                .movie-year {
-                    font-size: 0.9rem;
-                    color: #7f8c8d;
-                }
-        
-                .movie-meta {
-                    margin-top: 0.5rem;
-                    font-size: 0.9rem;
-                    color: #555;
-                }
-        
-                .movie-director, .movie-genres {
-                    margin: 0.25rem 0;
-                }
-        
-                .no-results {
-                    text-align: center;
-                    margin-top: 2rem;
-                }
-        
-                .no-results-image {
-                    max-width: 200px;
-                    margin-bottom: 1rem;
-                }
-        
-                .no-results-title {
-                    color: var(--primary-color);
-                    margin-bottom: 0.5rem;
-                }
-        
-                .no-results-text {
-                    color: #7f8c8d;
-                }
-        
-                #scrollToTopBtn {
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background-color: var(--primary-color);
-                    color: white;
-                    border: none;
-                    border-radius: 50%;
-                    width: 40px;
-                    height: 40px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                    transition: background-color 0.3s ease;
-                }
-        
-                #scrollToTopBtn:hover {
-                    background-color: var(--secondary-color);
-                }
-            </style>
+        <div class="name">
+            <h3>Имя пользователя:</h3>
+            <h3>---</h3>
+        </div>
         </head>
-        
-        
             <main class="main-content">
-                <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">&uarr;</button>
+                <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
                 <div class="container1">
                     <!-- Заголовок для раздела рекомендаций -->
-                    <p><a href="{% url 'movie_list' %}" class="back-link">← К списку фильмов</a></p>
+                    <a href="{% url 'movie_list' %}" class="btn back-btn">← К списку фильмов</a>
                     <h2 class="recommendations-title">Ваши рекомендации</h2>
                     
                     {% if movies %}
