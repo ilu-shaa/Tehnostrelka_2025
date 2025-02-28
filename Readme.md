@@ -31,5 +31,4 @@
 - pip install -r requirements.txt
 - pip install git+https://github.com/UKPLab/sentence-transformers.git
 - cd TechStrel\Tehnostrelka_2025\TECHOBETA\movies_projec\
-- pip install git+https://github.com/UKPLab/sentence-transformers.git
 - python manage.py runserver
