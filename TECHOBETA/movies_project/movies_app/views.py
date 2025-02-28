@@ -239,6 +239,7 @@ def movie_detail(request, movie_id):
         'form': form,
         'reviews': reviews
     })
+    
 @login_required
 def toggle_like(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
