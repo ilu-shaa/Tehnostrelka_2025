@@ -167,12 +167,41 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Movie, Like, Comment
 from .forms import CommentForm
 
+# views.py (у вас уже есть эта функция, покажу лишь фрагмент с комментариями)
+
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+import json
+
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+import json
+
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+
+import ast  # Добавляем модуль ast
+import json
+from django.shortcuts import render, get_object_or_404
+from .models import Movie, Like, Comment
+from .forms import CommentForm
+
 def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     is_liked = False
     if request.user.is_authenticated:
         is_liked = Like.objects.filter(user=request.user, movie=movie).exists()
 
+    # Подгружаем комментарии
     comments = movie.comments.all().order_by('-created_at')
 
     if request.method == 'POST':
@@ -186,12 +215,31 @@ def movie_detail(request, movie_id):
     else:
         form = CommentForm()
 
+    # Получаем рецензии из поля reviews
+    reviews = []
+    if movie.reviews:
+        try:
+            # Пытаемся обработать как JSON
+            reviews = json.loads(movie.reviews)
+        except json.JSONDecodeError:
+            try:
+                # Если JSON не удалось обработать, пробуем ast.literal_eval
+                reviews = ast.literal_eval(movie.reviews)
+            except (ValueError, SyntaxError) as e:
+                print(f"Ошибка при обработке reviews: {e}")
+                reviews = []
+
+    # Отладочный вывод для проверки данных
+    print("Рецензии:", reviews)
+
     return render(request, 'movies_app/movie_detail.html', {
         'movie': movie,
         'is_liked': is_liked,
         'comments': comments,
-        'form': form
+        'form': form,
+        'reviews': reviews
     })
+    
 @login_required
 def toggle_like(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)

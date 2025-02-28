@@ -27,14 +27,19 @@
     </header>
 
     <main class="main-content">
-        <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
+        <!-- Кнопка "Наверх" -->
+        <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">&uarr; Наверх</button>
+
         <div class="container1">
             <article class="movie-detail">
                 <div class="movie-header">
-                    <h1 class="movie-title">{{ movie.title }} <span class="movie-year">({{ movie.year }})</span></h1>
+                    <h1 class="movie-title">
+                        {{ movie.title }} 
+                        <span class="movie-year">({{ movie.year }})</span>
+                    </h1>
 
-                    <!-- Кнопка лайка -->
                     {% if user.is_authenticated %}
+                    <!-- Кнопка лайка -->
                     <form action="{% url 'toggle_like' movie.id %}" method="post" class="like-form">
                         {% csrf_token %}
                         <button type="submit" class="like-btn {% if is_liked %}liked{% endif %}">
@@ -46,98 +51,124 @@
 
                 <div class="movie-content">
                     <div class="movie-poster">
-                        <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}"
-                            alt="{{ movie.title }}" class="poster-image">
+                        <img 
+                            src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}"
+                            alt="{{ movie.title }}"
+                            class="poster-image"
+                        >
                     </div>
 
                     <div class="movie-info">
+                        <!-- Информация о фильме -->
                         <div class="info-section">
                             <h3>О фильме</h3>
                             <p><strong>Режиссёр:</strong> {{ movie.author|default:"не указан" }}</p>
                             <p><strong>Жанры:</strong> {{ movie.user_tags }}</p>
                         </div>
 
+                        <!-- Описание фильма -->
                         <div class="info-section">
                             <h3>Описание</h3>
                             <p class="movie-plot">{{ movie.plot|default:"Описание отсутствует" }}</p>
                         </div>
 
+                        <!-- Рецензии -->
                         <div class="info-section reviews-section">
                             <h3>Рецензии</h3>
-                            {% if movie.reviews %}
-                            <ul class="reviews-list">
-                                {% for review in movie.reviews %}
-                                <li class="review-item">
-                                    <span class="review-source">{{ review.source }}:</span>
-                                    <span class="review-rating">{{ review.value }}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
+                            {% if reviews %}
+                                <ul class="reviews-list">
+                                    {% for review in reviews %}
+                                        <li class="review-item">
+                                            <span class="review-source">{{ review.source }}:</span>
+                                            <span class="review-rating">{{ review.value }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                            <p class="no-reviews">Рецензии отсутствуют</p>
+                                <p class="no-reviews">Рецензии отсутствуют</p>
                             {% endif %}
                         </div>
                     </div>
                 </div>
 
+                <!-- Кнопка "Назад" -->
                 <div class="movie-footer">
-                    <a href="{% url 'movie_list' %}" class="btn back-btn">← К списку фильмов</a>
+                    <a href="{% url 'movie_list' %}" class="btn back-btn">
+                        &larr; К списку фильмов
+                    </a>
                 </div>
             </article>
-            <!-- Добавьте этот блок после секции с рецензиями -->
+
+            <!-- Блок с комментариями -->
             <div class="info-section comments-section">
                 <h3>Комментарии</h3>
                 {% if comments %}
-                <ul class="comments-list">
-                    {% for comment in comments %}
-                    <li class="comment-item">
-                        <span class="comment-user">{{ comment.user.username }}</span>
-                        <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
-                        <p class="comment-text">{{ comment.text }}</p>
-                    </li>
-                    {% endfor %}
-                </ul>
+                    <ul class="comments-list">
+                        {% for comment in comments %}
+                        <li class="comment-item">
+                            <span class="comment-user">{{ comment.user.username }}</span>
+                            <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                            <p class="comment-text">{{ comment.text }}</p>
+
+                            <!-- Отображение рейтинга (звёзд) -->
+                            <div class="comment-rating">
+                                Оценка:
+                                {% for star in "12345" %}
+                                    {% if forloop.counter <= comment.rating %}
+                                        ★
+                                    {% else %}
+                                        ☆
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 {% else %}
-                <p class="no-comments">Комментариев пока нет.</p>
+                    <p class="no-comments">Комментариев пока нет.</p>
                 {% endif %}
 
                 {% if user.is_authenticated %}
+                <!-- Форма добавления комментария -->
                 <form action="{% url 'movie_detail' movie.id %}" method="post" class="comment-form">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <button type="submit" class="btn comment-btn">Добавить комментарий</button>
                 </form>
                 {% else %}
-                <p class="login-to-comment">Чтобы оставить комментарий, <a href="{% url 'login' %}">войдите</a> или <a
-                        href="{% url 'register' %}">зарегистрируйтесь</a>.</p>
+                <p class="login-to-comment">
+                    Чтобы оставить комментарий, <a href="{% url 'login' %}">войдите</a> или
+                    <a href="{% url 'register' %}">зарегистрируйтесь</a>.
+                </p>
                 {% endif %}
             </div>
-
-
         </div>
     </main>
+
+    <!-- Скрипт для кнопки "Наверх" -->
     <script>
         // Показать/скрыть кнопку при прокрутке
         window.onscroll = function() {
             const scrollToTopBtn = document.getElementById('scrollToTopBtn');
             if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                scrollToTopBtn.style.display = "flex"; // Показываем кнопку
+                scrollToTopBtn.style.display = "flex";
             } else {
-                scrollToTopBtn.style.display = "none"; // Скрываем кнопку
+                scrollToTopBtn.style.display = "none";
             }
         };
 
-        // Функция прокрутки вверх
+        // Функция плавной прокрутки вверх
         function scrollToTop() {
             window.scrollTo({
                 top: 0,
-                behavior: 'smooth' // Плавная прокрутка
+                behavior: 'smooth'
             });
         }
-<<<<<<< HEAD
     </script>
-=======
+<<<<<<< HEAD
 
+    <!-- Дополнительные стили (можно вынести в отдельный файл main.css) -->
+    <style>
         .movie-header {
             display: flex;
             justify-content: space-between;
@@ -228,8 +259,43 @@
             background-color: var(--secondary-color);
             color: white;
         }
-    </style>
->>>>>>> 8f4c2e658f1816224c75ed15f2f67c39665d95c1
-</body>
 
+        /* Секция комментариев */
+        .comments-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .comment-item {
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .comment-user {
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .comment-date {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .comment-text {
+            margin: 0.5rem 0;
+        }
+
+        .comment-rating {
+            color: #e67e22; /* Цвет звёзд можно изменить на ваш вкус */
+        }
+
+        .login-to-comment {
+            font-style: italic;
+        }
+    </style>
+=======
+>>>>>>> 18b42ec001da0cf6c1e52d00cb6829f5fad0bfc5
+</body>
 </html>

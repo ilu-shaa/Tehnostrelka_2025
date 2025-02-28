@@ -76,7 +76,9 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviews = models.JSONField(default=list) 
+    rating = models.PositiveSmallIntegerField(default=1)
 
     def __str__(self):
-        return f'{self.user.username} - {self.movie.title}'
+        return f"Comment by {self.user} on {self.movie} ({self.rating} stars)"
