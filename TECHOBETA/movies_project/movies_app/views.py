@@ -8,58 +8,60 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Movie
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
-def semantic_search(request):
-    """
-    Пример отдельного view для семантического поиска.
-    На форму мы будем отправлять GET-параметр ?semantic_q=
-    """
-    query = request.GET.get('semantic_q', '').strip()
-    
-    if not query:
-        # Если пользователь ничего не ввёл, либо пришёл без параметра 
-        # — просто показываем пустую страницу/или список всех фильмов
-        return render(request, 'movies_app/semantic_search.html', {
-            'movies': [],
-            'query': ''
-        })
-    
-    # 1. Считаем вектор для запроса
-    query_embedding = model.encode(query)
-    
-    # 2. Выгружаем все фильмы (или отфильтрованные), и для каждого считаем похожесть
-    movies = Movie.objects.all()
-    
-    # Будем собирать (movie, similarity)
-    results = []
-    for m in movies:
-        # Если у фильма нет вектора, пропускаем
-        if not m.plot_vector:
-            continue
-        movie_vector = np.array(m.get_plot_vector(), dtype=np.float32)
-        # Косинусная похожесть = (A dot B) / (|A|*|B|)
-        # В numpy есть своя функция np.dot, но придётся ручками делить на нормы
-        dot = np.dot(query_embedding, movie_vector)
-        norm_a = np.linalg.norm(query_embedding)
-        norm_b = np.linalg.norm(movie_vector)
-        if norm_a == 0 or norm_b == 0:
-            similarity = 0.0
-        else:
-            similarity = dot / (norm_a * norm_b)
-        
-        results.append((m, similarity))
-    
-    # 3. Сортируем по убыванию similarity
-    results.sort(key=lambda x: x[1], reverse=True)
-    
-    # 4. Берём первые N результатов (например, 20)
-    top_results = [r[0] for r in results[:20]]
-    
-    return render(request, 'movies_app/semantic_search.html', {
-        'movies': top_results,
-        'query': query
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
+def combined_search(request):
+    search_query = request.GET.get('q', '').strip()
+
+    # Обычный поиск (точные совпадения)
+    movies = Movie.objects.all().order_by('title')
+    if search_query:
+        movies = movies.filter(
+            Q(title__icontains=search_query) | 
+            Q(plot__icontains=search_query) |
+            Q(author__icontains=search_query)
+        ).distinct()
+
+    # Семантический поиск (если есть запрос)
+    if search_query:
+        query_embedding = model.encode(search_query)
+        semantic_results = []
+
+        for movie in Movie.objects.all():
+            if not movie.plot_vector:
+                continue
+            movie_vector = np.array(movie.get_plot_vector(), dtype=np.float32)
+            dot = np.dot(query_embedding, movie_vector)
+            norm_a = np.linalg.norm(query_embedding)
+            norm_b = np.linalg.norm(movie_vector)
+            similarity = dot / (norm_a * norm_b) if norm_a != 0 and norm_b != 0 else 0.0
+            semantic_results.append((movie, similarity))
+
+        # Сортируем по убыванию сходства
+        semantic_results.sort(key=lambda x: x[1], reverse=True)
+        semantic_movies = [r[0] for r in semantic_results[:20]]
+
+        # Объединяем результаты обычного и семантического поиска
+        # Убираем дубликаты с помощью set
+        combined_movies = list(set(movies) | set(semantic_movies))
+    else:
+        combined_movies = movies
+
+    return render(request, 'movies_app/combined_search.html', {
+        'movies': combined_movies,
+        'search_query': search_query,
+        'genres': [
+            'Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime',
+            'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery',
+            'Romance', 'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'
+        ]
     })
-
 
 def movie_list(request):
     search_query = request.GET.get('q', '')

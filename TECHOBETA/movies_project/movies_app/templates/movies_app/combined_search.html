@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Фильмотека</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="logo">🎬 Фильмотека</h1>
+      <nav class="auth-nav">
+        {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}" class="btn profile-btn">👤 {{ user.username }}</a>
+          <a href="{% url 'logout' %}" class="btn logout-btn">🚪 Выйти</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn login-btn">🔑 Войти</a>
+          <a href="{% url 'register' %}" class="btn register-btn">📝 Регистрация</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container1">
+      <h2>Поиск фильмов</h2>
+      <!-- Форма поиска -->
+      <form method="GET" class="search-form">
+        <input type="text" 
+               name="q" 
+               placeholder="Поиск по названию, описанию или режиссёру..." 
+               value="{{ search_query }}" 
+               class="search-input">
+        <button type="submit" class="search-btn">🔍 Найти</button>
+      </form>
+
+      <!-- Фильтр по жанрам -->
+      <section class="genre-filter">
+        <nav class="genre-nav">
+          <a href="{% url 'combined_search' %}" class="genre-link {% if not genre %}active{% endif %}">Все</a>
+          {% for g in genres %}
+            <a href="{% url 'genre_movies' g %}" 
+               class="genre-link {% if g == genre %}active{% endif %}">
+              {{ g }}
+            </a>
+          {% endfor %}
+        </nav>
+      </section>
+
+      <hr>
+
+      <!-- Результаты поиска -->
+      {% if search_query %}
+        <div class="search-results-header">
+          <h3>Результаты поиска: "{{ search_query }}"</h3>
+          <p>Найдено фильмов: {{ movies|length }}</p>
+          <a href="{% url 'combined_search' %}" class="clear-search">× Сбросить поиск</a>
+        </div>
+      {% endif %}
+
+      {% if movies %}
+        <div class="movie-grid">
+          {% for movie in movies %}
+            <article class="movie-card">
+              <div class="movie-poster">
+                <img src="{% static 'posters/' %}{{ movie.poster|default:'no-image.jpg' }}" 
+                     alt="{{ movie.title }}" 
+                     loading="lazy">
+              </div>
+              <div class="movie-info">
+                <h3 class="movie-title">
+                  <a href="{% url 'movie_detail' movie.id %}">{{ movie.title }}</a>
+                  <span class="movie-year">({{ movie.year }})</span>
+                </h3>
+                <div class="movie-meta">
+                  <p class="movie-director">🎬 {{ movie.author }}</p>
+                  <p class="movie-genres">🏷️ {{ movie.user_tags }}</p>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Ничего не найдено. Попробуйте изменить запрос.</p>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

@@ -10,7 +10,7 @@ urlpatterns = [
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('toggle_like/<int:movie_id>/', views.toggle_like, name='toggle_like'),
-    path('recommendations/', views.recommendations, name='recommendations'),
-    path('semantic_search/', views.semantic_search, name='semantic_search'),
+    path('combined_search/', views.combined_search, name='combined_search'),
+
 
 ]

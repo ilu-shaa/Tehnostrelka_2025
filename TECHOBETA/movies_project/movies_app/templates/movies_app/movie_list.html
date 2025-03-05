@@ -27,8 +27,8 @@
         <button id="scrollToTopBtn" onclick="scrollToTop()" style="display:none;">↑ Наверх</button>
         <div class="container1">
             <section class="search-section">
-                <!-- Обычный поиск -->
-                <form class="search-form" action="{% url 'movie_list' %}" method="GET">
+                <!-- Форма поиска -->
+                <form class="search-form" action="{% url 'combined_search' %}" method="GET">
                     <input type="text" 
                            name="q" 
                            placeholder="Поиск по названию, описанию или режиссёру..."
@@ -37,27 +37,18 @@
                     <button type="submit" class="search-btn">🔍 Найти</button>
                 </form>
 
-                <!-- Семантический поиск -->
-                <form class="search-form" action="{% url 'semantic_search' %}" method="GET">
-                    <input type="text" 
-                           name="semantic_q" 
-                           placeholder="Поиск по текстовому описанию..."
-                           class="search-input">
-                    <button type="submit" class="search-btn">🔍 Семантический поиск</button>
-                </form>
-                
                 {% if search_query %}
                 <div class="search-results-header">
                     <h2>Результаты поиска: "{{ search_query }}"</h2>
                     <p>Найдено фильмов: {{ movies|length }}</p>
-                    <a href="{% url 'movie_list' %}" class="clear-search">× Сбросить поиск</a>
+                    <a href="{% url 'combined_search' %}" class="clear-search">× Сбросить поиск</a>
                 </div>
                 {% endif %}
             </section>
 
             <section class="genre-filter">
                 <nav class="genre-nav">
-                    <a href="{% url 'movie_list' %}" class="genre-link {% if not genre %}active{% endif %}">Все</a>
+                    <a href="{% url 'combined_search' %}" class="genre-link {% if not genre %}active{% endif %}">Все</a>
                     {% for g in genres %}
                         <a href="{% url 'genre_movies' g %}" 
                            class="genre-link {% if g == genre %}active{% endif %}">
@@ -100,24 +91,4 @@
             {% endif %}
         </div>
     </main>
-    <script>
-        // Показать/скрыть кнопку при прокрутке
-        window.onscroll = function() {
-            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                scrollToTopBtn.style.display = "flex"; // Показываем кнопку
-            } else {
-                scrollToTopBtn.style.display = "none"; // Скрываем кнопку
-            }
-        };
-
-        // Функция прокрутки вверх
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth' // Плавная прокрутка
-            });
-        }
-    </script>
-</body>
-</html>
+   
